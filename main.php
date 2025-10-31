@@ -4,7 +4,6 @@ require 'vendor/autoload.php';
 
 use Carbon\Carbon;
 use Dotenv\Dotenv;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
 
@@ -33,9 +32,6 @@ function generate_headers($method, $path) {
  * A universal function to send requests to the Mekari API.
  */
 function mekari_request($method,$path,$payload = NULL) {
-    // $url = $_ENV['MEKARI_API_BASE_URL'].$path;
-    // $headers = generate_headers($method, $path);
-
     // Set http client
     $client = new GuzzleHttp\Client([
         'base_uri' => $_ENV['MEKARI_API_BASE_URL']
@@ -54,103 +50,64 @@ function mekari_request($method,$path,$payload = NULL) {
                 'headers' => generate_headers($method, $path)
             ]);
         }
-
-        // echo $response->getBody();
     } catch (ClientException $e) {
         echo Psr7\Message::toString($e->getRequest());
         echo Psr7\Message::toString($e->getResponse());
         echo PHP_EOL;
     }
 
-    // $ch = curl_init($url);
-    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    
-    // Configure cURL options based on the HTTP method
-    // switch (strtoupper($method)) {
-    //     case 'POST':
-    //         curl_setopt($ch, CURLOPT_POST, true);
-    //         if ($payload) {
-    //             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    //         }
-    //         break;
-    //     case 'GET':
-    //         curl_setopt($ch, CURLOPT_HTTPGET, true);
-    //         break;
-    //     // Add other methods like PUT, DELETE as needed
-    // }
-
-    // $response = curl_exec($ch);
-    // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    // curl_close($ch);
-
     return [
-        // 'response' => json_decode($response, true),
         'response' => json_decode($response->getBody()->getContents()),
         'http_code' => $response->getStatusCode()
     ];
 }
 
 // Set request
-$category    = 'absence';
-$phone       = '6285156467659';
-$parentName  = 'ROROA NO/RORO JONGRANG';
-$studentName = 'AULIYA DHAVA WIMA';
-// $category    = null;
-// $phone       = null;
-// $parentName  = null;
-// $studentName = null;
-// if (isset($_POST['category']))     { $category    = $_POST['category']; }
-// if (isset($_POST['phone']))        { $phone       = $_POST['phone']; }
-// if (isset($_POST['parent_name']))  { $parentName  = $_POST['parent_name']; }
-// if (isset($_POST['student_name'])) { $studentName = $_POST['student_name']; }
-If (!in_array($category,['absence','payment','bill'])) {exit;}
-If (!$phone)       {exit;}
-If (!$parentName)  {exit;}
-If (!$studentName) {exit;}
+$category    = null;
+$phone       = null;
+$parentName  = null;
+$studentName = null;
+if (isset($_POST['category']))     { $category    = $_POST['category']; }     // Example : absence
+if (isset($_POST['phone']))        { $phone       = $_POST['phone']; }        // Example : 6281284420481
+if (isset($_POST['parent_name']))  { $parentName  = $_POST['parent_name']; }  // Example : ANDRI SIREGAR/NANA SIREGAR
+if (isset($_POST['student_name'])) { $studentName = $_POST['student_name']; } // Example : FERNANDES SIREGAR
+If (!in_array($category,['absence','payment','bill'])) {exit();}
+If (!$phone)       {exit();}
+If (!$parentName)  {exit();}
+If (!$studentName) {exit();}
 
 if ($category === 'absence') {
-    $absenceDate   = '18-Okt-2025';
-    $absenceStatus = 'SAKIT';
-    $absenceRemark = 'Info dari guru kelas';
-    // $absenceDate   = null;
-    // $absenceStatus = null;
-    // $absenceRemark = null;
-    // if (isset($_POST['absence_date']))   { $absenceDate   = $_POST['absence_date']; }
-    // if (isset($_POST['absence_status'])) { $absenceStatus = $_POST['absence_status']; }
-    // if (isset($_POST['absence_remark'])) { $absenceRemark = $_POST['absence_remark']; }
-    If (!$absenceDate)   {exit;}
-    If (!$absenceStatus) {exit;}
-    If (!$absenceRemark) {exit;}
+    $absenceDate   = null;
+    $absenceStatus = null;
+    $absenceRemark = null;
+    if (isset($_POST['absence_date']))   { $absenceDate   = $_POST['absence_date']; }   // Example : 18-Okt-2025
+    if (isset($_POST['absence_status'])) { $absenceStatus = $_POST['absence_status']; } // Example : SAKIT
+    if (isset($_POST['absence_remark'])) { $absenceRemark = $_POST['absence_remark']; } // Example : Info dari guru kelas
+    If (!$absenceDate)   {exit();}
+    If (!$absenceStatus) {exit();}
+    If (!$absenceRemark) {exit();}
 }
 if ($category === 'payment') {
     $studentClass = null;
     $paymentInfo  = null;
     $paymentDate = null;
-    if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; }
-    if (isset($_POST['payment_info']))  { $paymentInfo  = $_POST['payment_info']; }
-    if (isset($_POST['payment_date']))  { $paymentDate  = $_POST['payment_date']; }
-    If (!$studentClass) {exit;}
-    If (!$paymentInfo)  {exit;}
-    If (!$paymentDate)  {exit;}
+    if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : XI.R-3
+    if (isset($_POST['payment_info']))  { $paymentInfo  = $_POST['payment_info']; }  // Example : SPP Nov-2025: 600,000
+    if (isset($_POST['payment_date']))  { $paymentDate  = $_POST['payment_date']; }  // Example : 29-Okt-2025
+    If (!$studentClass) {exit();}
+    If (!$paymentInfo)  {exit();}
+    If (!$paymentDate)  {exit();}
 }
 if ($category === 'bill') {
     $studentClass = null;
     $billList     = null;
-    if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; }
-    if (isset($_POST['bill_list']))     { $billList     = $_POST['bill_list']; }
-    If (!$studentClass) {exit;}
-    If (!$billList)     {exit;}
+    if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : X.P-3
+    if (isset($_POST['bill_list']))     { $billList     = $_POST['bill_list']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
+    If (!$studentClass) {exit();}
+    If (!$billList)     {exit();}
 }
 
-// Set method and path for the request
-// $method     = 'POST';
-// $path       = '/v2/klikpajak/v1/efaktur/out/';
-// $queryParam = '?auto_approval=false';
-// $headers    = [
-//     'X-Idempotency-Key' => '1234'
-// ];
-// $body       = [/* request body */];
+// Set path and payload for the request
 $postPath = '/qontak/chat/v1/broadcasts/whatsapp/direct';
 if ($category === 'absence') {
     $postPayload = [
@@ -209,11 +166,7 @@ if ($category === 'bill') {
 // Initiate request
 echo "==[ Sending Broadcast (POST) ]==\n";
 $postResult = mekari_request('POST', $postPath, $postPayload);
-
 echo "Status Code: " . $postResult['http_code'] . "\n";
-// echo "Status Code: xxx\n";
-// print_r($postResult['response']);
-// print_r($postResult['response']->data->id);
 
 // Check if the broadcast was sent successfully
 if ($postResult['http_code'] != 201) {
@@ -223,7 +176,6 @@ if ($postResult['http_code'] != 201) {
 
 // Extract the broadcast ID from the response
 $broadcastId = $postResult['response']->data->id ?? null;
-// print_r($postResult['response']->data);
 if (!$broadcastId) {
     echo "Broadcast ID not found in response.\n";
     exit();
@@ -241,19 +193,6 @@ echo "\n==[ Getting Broadcast Log (GET) ]==\n";
 $logResult = mekari_request('GET', $logPath);
 
 echo "Status Code: " . $logResult['http_code'] . "\n";
-// echo "Status Code: xxx\n";
 print_r($logResult['response']->data[0]);
 
 echo PHP_EOL;
-// try {
-//     $response = $client->request($method, $path, [
-//         'headers'   => array_merge(generate_headers($method, $path . $queryParam), $headers),
-//         'body'      => json_encode($body)
-//     ]);
-
-//     echo $response->getBody();
-// } catch (ClientException $e) {
-//     echo Psr7\Message::toString($e->getRequest());
-//     echo Psr7\Message::toString($e->getResponse());
-//     echo PHP_EOL;
-// }
