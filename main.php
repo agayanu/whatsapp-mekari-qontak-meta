@@ -94,7 +94,7 @@ if ($category === 'absence') {
     $absenceDate   = null;
     $absenceStatus = null;
     $absenceRemark = null;
-    if (isset($_POST['absence_date']))   { $absenceDate   = $_POST['absence_date']; }   // Example : 18-Okt-2025
+    if (isset($_POST['trans_date']))     { $absenceDate   = $_POST['trans_date']; }   // Example : 18-Okt-2025
     if (isset($_POST['absence_status'])) { $absenceStatus = $_POST['absence_status']; } // Example : SAKIT
     if (isset($_POST['absence_remark'])) { $absenceRemark = $_POST['absence_remark']; } // Example : Info dari guru kelas
     If (!$absenceDate)   {error_function('Absence Date cannot NULL!');}
@@ -106,8 +106,8 @@ if ($category === 'payment') {
     $paymentInfo  = null;
     $paymentDate = null;
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : XI.R-3
-    if (isset($_POST['payment_info']))  { $paymentInfo  = $_POST['payment_info']; }  // Example : SPP Nov-2025: 600,000
-    if (isset($_POST['payment_date']))  { $paymentDate  = $_POST['payment_date']; }  // Example : 29-Okt-2025
+    if (isset($_POST['message']))       { $paymentInfo  = $_POST['message']; }  // Example : SPP Nov-2025: 600,000
+    if (isset($_POST['trans_date']))    { $paymentDate  = $_POST['trans_date']; }  // Example : 29-Okt-2025
     If (!$studentClass) {error_function('Student Class cannot NULL!');}
     If (!$paymentInfo)  {error_function('Payment Info cannot NULL!');}
     If (!$paymentDate)  {error_function('Payment Date cannot NULL!');}
@@ -116,7 +116,7 @@ if ($category === 'bill') {
     $studentClass = null;
     $billList     = null;
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : X.P-3
-    if (isset($_POST['bill_list']))     { $billList     = $_POST['bill_list']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
+    if (isset($_POST['message']))       { $billList     = $_POST['message']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
     If (!$studentClass) {error_function('Student Class cannot NULL!');}
     If (!$billList)     {error_function('Bill List cannot NULL!');}
 }
