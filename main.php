@@ -6,10 +6,19 @@ use Carbon\Carbon;
 use Dotenv\Dotenv;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 // Load .env file
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
+
+/// Log channel
+$waError = new Logger('whatsapp_error');
+$waSuccess = new Logger('whatsapp_success');
+$waError->pushHandler(new StreamHandler('logs/errors.log', Level::Error));
+$waSuccess->pushHandler(new StreamHandler('logs/success.log', Level::Info));
 
 /**
  * Generate authentication headers based on method and path
@@ -31,7 +40,7 @@ function generate_headers($method, $path) {
 /**
  * A universal function to send requests to the Mekari API.
  */
-function mekari_request($method,$path,$payload = NULL) {
+function mekari_request($method,$path,$payload = NULL,$waError) {
     // Set http client
     $client = new GuzzleHttp\Client([
         'base_uri' => $_ENV['MEKARI_API_BASE_URL']
@@ -57,7 +66,7 @@ function mekari_request($method,$path,$payload = NULL) {
             'error_request' => $errorRequest,
             'error_response' => $errorResponse,
         ];
-        error_function('Error Send Request to Mekari!',$detail);
+        error_function('Error Send Request to Mekari!',$detail,$waError);
     }
 
     return [
@@ -66,13 +75,15 @@ function mekari_request($method,$path,$payload = NULL) {
     ];
 }
 
-function error_function($msg,$detail = NULL) {
+function error_function($msg,$detail = NULL,$waError) {
     $resJson = [
         'status' => 'error',
         'msg' => $msg,
         'detail' => $detail,
     ];
-    echo json_encode($resJson);
+    $rJson = json_encode($resJson);
+    $waError->error($rJson);
+    echo $rJson;
     echo PHP_EOL;
 }
 
@@ -85,10 +96,10 @@ if (isset($_POST['category']))     { $category    = $_POST['category']; }     //
 if (isset($_POST['phone']))        { $phone       = $_POST['phone']; }        // Example : 6281284420481
 if (isset($_POST['parent_name']))  { $parentName  = $_POST['parent_name']; }  // Example : ANDRI SIREGAR/NANA SIREGAR
 if (isset($_POST['student_name'])) { $studentName = $_POST['student_name']; } // Example : FERNANDES SIREGAR
-If (!in_array($category,['absence','payment','bill'])) {error_function('Category cannot NULL!');}
-If (!$phone)       {error_function('Phone cannot NULL!');}
-If (!$parentName)  {error_function('Parent Name cannot NULL!');}
-If (!$studentName) {error_function('Student Name cannot NULL!');}
+If (!in_array($category,['absence','payment','bill'])) {error_function('Category cannot NULL!',NULL,$waError);}
+If (!$phone)       {error_function('Phone cannot NULL!',NULL,$waError);}
+If (!$parentName)  {error_function('Parent Name cannot NULL!',NULL,$waError);}
+If (!$studentName) {error_function('Student Name cannot NULL!',NULL,$waError);}
 
 if ($category === 'absence') {
     $absenceDate   = null;
@@ -97,9 +108,9 @@ if ($category === 'absence') {
     if (isset($_POST['trans_date']))     { $absenceDate   = $_POST['trans_date']; }   // Example : 18-Okt-2025
     if (isset($_POST['absence_status'])) { $absenceStatus = $_POST['absence_status']; } // Example : SAKIT
     if (isset($_POST['absence_remark'])) { $absenceRemark = $_POST['absence_remark']; } // Example : Info dari guru kelas
-    If (!$absenceDate)   {error_function('Absence Date cannot NULL!');}
-    If (!$absenceStatus) {error_function('Absence Status cannot NULL!');}
-    If (!$absenceRemark) {error_function('Absence Remark cannot NULL!');}
+    If (!$absenceDate)   {error_function('Absence Date cannot NULL!',NULL,$waError);}
+    If (!$absenceStatus) {error_function('Absence Status cannot NULL!',NULL,$waError);}
+    If (!$absenceRemark) {error_function('Absence Remark cannot NULL!',NULL,$waError);}
 }
 if ($category === 'payment') {
     $studentClass = null;
@@ -108,17 +119,17 @@ if ($category === 'payment') {
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : XI.R-3
     if (isset($_POST['message']))       { $paymentInfo  = $_POST['message']; }  // Example : SPP Nov-2025: 600,000
     if (isset($_POST['trans_date']))    { $paymentDate  = $_POST['trans_date']; }  // Example : 29-Okt-2025
-    If (!$studentClass) {error_function('Student Class cannot NULL!');}
-    If (!$paymentInfo)  {error_function('Payment Info cannot NULL!');}
-    If (!$paymentDate)  {error_function('Payment Date cannot NULL!');}
+    If (!$studentClass) {error_function('Student Class cannot NULL!',NULL,$waError);}
+    If (!$paymentInfo)  {error_function('Payment Info cannot NULL!',NULL,$waError);}
+    If (!$paymentDate)  {error_function('Payment Date cannot NULL!',NULL,$waError);}
 }
 if ($category === 'bill') {
     $studentClass = null;
     $billList     = null;
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : X.P-3
     if (isset($_POST['message']))       { $billList     = $_POST['message']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
-    If (!$studentClass) {error_function('Student Class cannot NULL!');}
-    If (!$billList)     {error_function('Bill List cannot NULL!');}
+    If (!$studentClass) {error_function('Student Class cannot NULL!',NULL,$waError);}
+    If (!$billList)     {error_function('Bill List cannot NULL!',NULL,$waError);}
 }
 
 // Set path and payload for the request
@@ -177,25 +188,27 @@ if ($category === 'bill') {
     ];
 }
 
-$postResult = mekari_request('POST', $postPath, $postPayload);
+$postResult = mekari_request('POST', $postPath, $postPayload, $waError);
 if ($postResult['http_code'] != 201) {
-    error_function('Code not 201!');
+    error_function('Code not 201!',NULL,$waError);
 }
 
 $broadcastId = $postResult['response']->data->id ?? null;
 if (!$broadcastId) {
-    error_function('Broadcast ID not found in response!');
+    error_function('Broadcast ID not found in response!',NULL,$waError);
 }
 
 sleep(10);
 
 $logPath = "/qontak/chat/v1/broadcasts/{$broadcastId}/whatsapp/log";
-$logResult = mekari_request('GET', $logPath);
+$logResult = mekari_request('GET', $logPath,NULL,$waError);
 
 $resJson = [
     'status' => 'success',
     'msg' => 'Success to send broadcast!',
     'detail' => $logResult['response']->data[0],
 ];
-echo json_encode($resJson);
+$rJsonSuccess = json_encode($resJson);
+$waSuccess->info($rJsonSuccess);
+echo $rJsonSuccess;
 echo PHP_EOL;
