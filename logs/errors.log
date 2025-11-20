@@ -1,0 +1,8 @@
+[2025-11-14T01:59:52.995256+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Category cannot NULL!","time":"2025-11-14T01:59:52.995067Z"} [] []
+[2025-11-14T01:59:52.996383+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Phone cannot NULL!","time":"2025-11-14T01:59:52.996222Z"} [] []
+[2025-11-14T01:59:52.996582+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Parent Name cannot NULL!","time":"2025-11-14T01:59:52.996476Z"} [] []
+[2025-11-14T01:59:52.996752+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Student Name cannot NULL!","time":"2025-11-14T01:59:52.996651Z"} [] []
+[2025-11-14T02:08:44.784638+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Category cannot NULL!","time":"2025-11-14T02:08:44.784556Z"} [] []
+[2025-11-14T02:08:44.785076+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Phone cannot NULL!","time":"2025-11-14T02:08:44.785016Z"} [] []
+[2025-11-14T02:08:44.785165+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Parent Name cannot NULL!","time":"2025-11-14T02:08:44.785116Z"} [] []
+[2025-11-14T02:08:44.785244+00:00] whatsapp_error.ERROR: {"status":"error","msg":"Student Name cannot NULL!","time":"2025-11-14T02:08:44.785198Z"} [] []

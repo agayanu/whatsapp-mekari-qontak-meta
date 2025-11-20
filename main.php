@@ -40,7 +40,7 @@ function generate_headers($method, $path) {
 /**
  * A universal function to send requests to the Mekari API.
  */
-function mekari_request($method,$path,$payload = NULL,$waError) {
+function mekari_request($method,$path,$waError,$payload = NULL) {
     // Set http client
     $client = new GuzzleHttp\Client([
         'base_uri' => $_ENV['MEKARI_API_BASE_URL']
@@ -75,17 +75,56 @@ function mekari_request($method,$path,$payload = NULL,$waError) {
     ];
 }
 
-function error_function($msg,$detail = NULL,$waError) {
+function error_function($msg,$waError,$detail = NULL) {
     $resJson = [
         'status' => 'error',
         'msg' => $msg,
         'detail' => $detail,
     ];
+    // $resJson = [
+    //     'status' => 'error',
+    //     'msg' => $msg,
+    //     'time' => Carbon::now()->format('d/m/Y hh:ii:ss'),
+    // ];
     $rJson = json_encode($resJson);
     $waError->error($rJson);
     echo $rJson;
     echo PHP_EOL;
 }
+
+// try {
+//     $postPrint = [
+//         'ket' => 'post print',
+//         'time' => Carbon::now()->format('d/m/Y hh:ii:ss'),
+//         'category'      => $_POST['category'],
+//         'phone'         => $_POST['phone'],
+//         'parentName'    => $_POST['parent_name'],
+//         'studentName'   => $_POST['student_name'],
+//         'absenceDate'   => $_POST['trans_date'],
+//         'absenceStatus' => $_POST['absence_status'],
+//         'absenceRemark' => $_POST['absence_remark'],
+//         'studentClass'  => $_POST['student_class'],
+//         'message'       => $_POST['message'],
+//     ];
+//     $rpostPrint = json_encode($postPrint);
+//     $waSuccess->info($rpostPrint);
+// } catch (Exception $e) {
+//     $waError->error($e->getMessage().'\n');
+// }
+
+// try {
+//     $postPrint = [
+//         'ket' => 'post print',
+//         'time' => Carbon::now()->format('d/m/Y hh:ii:ss'),
+//         'category'      => $_POST['ids'],
+//         'phone'         => $_POST['phone'],
+//         'parentName'    => $_POST['message'],
+//     ];
+//     $rpostPrint = json_encode($postPrint);
+//     $waSuccess->info($rpostPrint);
+// } catch (Exception $e) {
+//     $waError->error($e->getMessage().'\n');
+// }
 
 // Set request
 $category    = null;
@@ -96,10 +135,14 @@ if (isset($_POST['category']))     { $category    = $_POST['category']; }     //
 if (isset($_POST['phone']))        { $phone       = $_POST['phone']; }        // Example : 6281284420481
 if (isset($_POST['parent_name']))  { $parentName  = $_POST['parent_name']; }  // Example : ANDRI SIREGAR/NANA SIREGAR
 if (isset($_POST['student_name'])) { $studentName = $_POST['student_name']; } // Example : FERNANDES SIREGAR
-If (!in_array($category,['absence','payment','bill'])) {error_function('Category cannot NULL!',NULL,$waError);}
-If (!$phone)       {error_function('Phone cannot NULL!',NULL,$waError);}
-If (!$parentName)  {error_function('Parent Name cannot NULL!',NULL,$waError);}
-If (!$studentName) {error_function('Student Name cannot NULL!',NULL,$waError);}
+// if (isset($_GET['category']))     { $category    = $_GET['category']; }     // Example : absence
+// if (isset($_GET['phone']))        { $phone       = $_GET['phone']; }        // Example : 6281284420481
+// if (isset($_GET['parent_name']))  { $parentName  = $_GET['parent_name']; }  // Example : ANDRI SIREGAR/NANA SIREGAR
+// if (isset($_GET['student_name'])) { $studentName = $_GET['student_name']; } // Example : FERNANDES SIREGAR
+If (!in_array($category,['absence','payment','bill'])) {error_function('Category cannot NULL!',$waError);}
+If (!$phone)       {error_function('Phone cannot NULL!',$waError);}
+If (!$parentName)  {error_function('Parent Name cannot NULL!',$waError);}
+If (!$studentName) {error_function('Student Name cannot NULL!',$waError);}
 
 if ($category === 'absence') {
     $absenceDate   = null;
@@ -108,9 +151,12 @@ if ($category === 'absence') {
     if (isset($_POST['trans_date']))     { $absenceDate   = $_POST['trans_date']; }   // Example : 18-Okt-2025
     if (isset($_POST['absence_status'])) { $absenceStatus = $_POST['absence_status']; } // Example : SAKIT
     if (isset($_POST['absence_remark'])) { $absenceRemark = $_POST['absence_remark']; } // Example : Info dari guru kelas
-    If (!$absenceDate)   {error_function('Absence Date cannot NULL!',NULL,$waError);}
-    If (!$absenceStatus) {error_function('Absence Status cannot NULL!',NULL,$waError);}
-    If (!$absenceRemark) {error_function('Absence Remark cannot NULL!',NULL,$waError);}
+    // if (isset($_GET['trans_date']))     { $absenceDate   = $_GET['trans_date']; }   // Example : 18-Okt-2025
+    // if (isset($_GET['absence_status'])) { $absenceStatus = $_GET['absence_status']; } // Example : SAKIT
+    // if (isset($_GET['absence_remark'])) { $absenceRemark = $_GET['absence_remark']; } // Example : Info dari guru kelas
+    If (!$absenceDate)   {error_function('Absence Date cannot NULL!',$waError);}
+    If (!$absenceStatus) {error_function('Absence Status cannot NULL!',$waError);}
+    If (!$absenceRemark) {error_function('Absence Remark cannot NULL!',$waError);}
 }
 if ($category === 'payment') {
     $studentClass = null;
@@ -119,17 +165,22 @@ if ($category === 'payment') {
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : XI.R-3
     if (isset($_POST['message']))       { $paymentInfo  = $_POST['message']; }  // Example : SPP Nov-2025: 600,000
     if (isset($_POST['trans_date']))    { $paymentDate  = $_POST['trans_date']; }  // Example : 29-Okt-2025
-    If (!$studentClass) {error_function('Student Class cannot NULL!',NULL,$waError);}
-    If (!$paymentInfo)  {error_function('Payment Info cannot NULL!',NULL,$waError);}
-    If (!$paymentDate)  {error_function('Payment Date cannot NULL!',NULL,$waError);}
+    // if (isset($_GET['student_class'])) { $studentClass = $_GET['student_class']; } // Example : XI.R-3
+    // if (isset($_GET['message']))       { $paymentInfo  = $_GET['message']; }  // Example : SPP Nov-2025: 600,000
+    // if (isset($_GET['trans_date']))    { $paymentDate  = $_GET['trans_date']; }  // Example : 29-Okt-2025
+    If (!$studentClass) {error_function('Student Class cannot NULL!',$waError);}
+    If (!$paymentInfo)  {error_function('Payment Info cannot NULL!',$waError);}
+    If (!$paymentDate)  {error_function('Payment Date cannot NULL!',$waError);}
 }
 if ($category === 'bill') {
     $studentClass = null;
     $billList     = null;
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : X.P-3
     if (isset($_POST['message']))       { $billList     = $_POST['message']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
-    If (!$studentClass) {error_function('Student Class cannot NULL!',NULL,$waError);}
-    If (!$billList)     {error_function('Bill List cannot NULL!',NULL,$waError);}
+    // if (isset($_GET['student_class'])) { $studentClass = $_GET['student_class']; } // Example : X.P-3
+    // if (isset($_GET['message']))       { $billList     = $_GET['message']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
+    If (!$studentClass) {error_function('Student Class cannot NULL!',$waError);}
+    If (!$billList)     {error_function('Bill List cannot NULL!',$waError);}
 }
 
 // Set path and payload for the request
@@ -188,20 +239,40 @@ if ($category === 'bill') {
     ];
 }
 
-$postResult = mekari_request('POST', $postPath, $postPayload, $waError);
+$postResult = mekari_request('POST', $postPath, $waError,$postPayload);
 if ($postResult['http_code'] != 201) {
-    error_function('Code not 201!',NULL,$waError);
+    error_function('Code not 201!',$waError);
 }
 
 $broadcastId = $postResult['response']->data->id ?? null;
 if (!$broadcastId) {
-    error_function('Broadcast ID not found in response!',NULL,$waError);
+    error_function('Broadcast ID not found in response!',$waError);
 }
 
 sleep(10);
 
 $logPath = "/qontak/chat/v1/broadcasts/{$broadcastId}/whatsapp/log";
-$logResult = mekari_request('GET', $logPath,NULL,$waError);
+$logResult = mekari_request('GET', $logPath,$waError);
+
+// $resJson = [
+//     'status' => 'success',
+//     'msg' => 'Success to send broadcast!',
+//     'time' => Carbon::now(),
+//     'detail' => [
+//         'category'      => $category,
+//         'phone'         => $phone,
+//         'parentName'    => $parentName,
+//         'studentName'   => $studentName,
+//         'absenceDate'   => $absenceDate,
+//         'absenceStatus' => $absenceStatus,
+//         'absenceRemark' => $absenceRemark,
+//         'studentClass'  => $studentClass,
+//         'paymentInfo'   => $paymentInfo,
+//         'paymentDate'   => $paymentDate,
+//         'studentClass'  => $studentClass,
+//         'billList'      => $billList,
+//     ],
+// ];
 
 $resJson = [
     'status' => 'success',
