@@ -225,7 +225,7 @@ if ($category === 'bill') {
     $postPayload = [
         "to_name" => $studentName,
         "to_number" => $phone, // Replace with the recipient's actual phone number
-        "message_template_id" => "f2fc73ff-fa3c-4c91-9667-bd7b918c12b6",
+        "message_template_id" => "7fa4abdb-0865-4ffc-a225-c52c55bf1374",
         "channel_integration_id" => "b9ac65e9-02cb-4ae8-bbbf-392d2801267f",
         "language" => ["code" => "id"],
         "parameters" => [
