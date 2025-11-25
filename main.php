@@ -81,50 +81,11 @@ function error_function($msg,$waError,$detail = NULL) {
         'msg' => $msg,
         'detail' => $detail,
     ];
-    // $resJson = [
-    //     'status' => 'error',
-    //     'msg' => $msg,
-    //     'time' => Carbon::now()->format('d/m/Y hh:ii:ss'),
-    // ];
     $rJson = json_encode($resJson);
     $waError->error($rJson);
     echo $rJson;
     echo PHP_EOL;
 }
-
-// try {
-//     $postPrint = [
-//         'ket' => 'post print',
-//         'time' => Carbon::now()->format('d/m/Y hh:ii:ss'),
-//         'category'      => $_POST['category'],
-//         'phone'         => $_POST['phone'],
-//         'parentName'    => $_POST['parent_name'],
-//         'studentName'   => $_POST['student_name'],
-//         'absenceDate'   => $_POST['trans_date'],
-//         'absenceStatus' => $_POST['absence_status'],
-//         'absenceRemark' => $_POST['absence_remark'],
-//         'studentClass'  => $_POST['student_class'],
-//         'message'       => $_POST['message'],
-//     ];
-//     $rpostPrint = json_encode($postPrint);
-//     $waSuccess->info($rpostPrint);
-// } catch (Exception $e) {
-//     $waError->error($e->getMessage().'\n');
-// }
-
-// try {
-//     $postPrint = [
-//         'ket' => 'post print',
-//         'time' => Carbon::now()->format('d/m/Y hh:ii:ss'),
-//         'category'      => $_POST['ids'],
-//         'phone'         => $_POST['phone'],
-//         'parentName'    => $_POST['message'],
-//     ];
-//     $rpostPrint = json_encode($postPrint);
-//     $waSuccess->info($rpostPrint);
-// } catch (Exception $e) {
-//     $waError->error($e->getMessage().'\n');
-// }
 
 // Set request
 $category    = null;
@@ -135,14 +96,13 @@ if (isset($_POST['category']))     { $category    = $_POST['category']; }     //
 if (isset($_POST['phone']))        { $phone       = $_POST['phone']; }        // Example : 6281284420481
 if (isset($_POST['parent_name']))  { $parentName  = $_POST['parent_name']; }  // Example : ANDRI SIREGAR/NANA SIREGAR
 if (isset($_POST['student_name'])) { $studentName = $_POST['student_name']; } // Example : FERNANDES SIREGAR
-// if (isset($_GET['category']))     { $category    = $_GET['category']; }     // Example : absence
-// if (isset($_GET['phone']))        { $phone       = $_GET['phone']; }        // Example : 6281284420481
-// if (isset($_GET['parent_name']))  { $parentName  = $_GET['parent_name']; }  // Example : ANDRI SIREGAR/NANA SIREGAR
-// if (isset($_GET['student_name'])) { $studentName = $_GET['student_name']; } // Example : FERNANDES SIREGAR
 If (!in_array($category,['absence','payment','bill'])) {error_function('Category cannot NULL!',$waError);}
 If (!$phone)       {error_function('Phone cannot NULL!',$waError);}
 If (!$parentName)  {error_function('Parent Name cannot NULL!',$waError);}
 If (!$studentName) {error_function('Student Name cannot NULL!',$waError);}
+$parentName = str_replace('Yth.', '', $parentName);
+$parentName = str_replace('Yth ', '', $parentName);
+$parentName = str_replace('Yth. ', '', $parentName);
 
 if ($category === 'absence') {
     $absenceDate   = null;
@@ -151,9 +111,6 @@ if ($category === 'absence') {
     if (isset($_POST['trans_date']))     { $absenceDate   = $_POST['trans_date']; }   // Example : 18-Okt-2025
     if (isset($_POST['absence_status'])) { $absenceStatus = $_POST['absence_status']; } // Example : SAKIT
     if (isset($_POST['absence_remark'])) { $absenceRemark = $_POST['absence_remark']; } // Example : Info dari guru kelas
-    // if (isset($_GET['trans_date']))     { $absenceDate   = $_GET['trans_date']; }   // Example : 18-Okt-2025
-    // if (isset($_GET['absence_status'])) { $absenceStatus = $_GET['absence_status']; } // Example : SAKIT
-    // if (isset($_GET['absence_remark'])) { $absenceRemark = $_GET['absence_remark']; } // Example : Info dari guru kelas
     If (!$absenceDate)   {error_function('Absence Date cannot NULL!',$waError);}
     If (!$absenceStatus) {error_function('Absence Status cannot NULL!',$waError);}
     If (!$absenceRemark) {error_function('Absence Remark cannot NULL!',$waError);}
@@ -165,9 +122,6 @@ if ($category === 'payment') {
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : XI.R-3
     if (isset($_POST['message']))       { $paymentInfo  = $_POST['message']; }  // Example : SPP Nov-2025: 600,000
     if (isset($_POST['trans_date']))    { $paymentDate  = $_POST['trans_date']; }  // Example : 29-Okt-2025
-    // if (isset($_GET['student_class'])) { $studentClass = $_GET['student_class']; } // Example : XI.R-3
-    // if (isset($_GET['message']))       { $paymentInfo  = $_GET['message']; }  // Example : SPP Nov-2025: 600,000
-    // if (isset($_GET['trans_date']))    { $paymentDate  = $_GET['trans_date']; }  // Example : 29-Okt-2025
     If (!$studentClass) {error_function('Student Class cannot NULL!',$waError);}
     If (!$paymentInfo)  {error_function('Payment Info cannot NULL!',$waError);}
     If (!$paymentDate)  {error_function('Payment Date cannot NULL!',$waError);}
@@ -177,8 +131,6 @@ if ($category === 'bill') {
     $billList     = null;
     if (isset($_POST['student_class'])) { $studentClass = $_POST['student_class']; } // Example : X.P-3
     if (isset($_POST['message']))       { $billList     = $_POST['message']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
-    // if (isset($_GET['student_class'])) { $studentClass = $_GET['student_class']; } // Example : X.P-3
-    // if (isset($_GET['message']))       { $billList     = $_GET['message']; }     // Example : SPP AGU-2023=500,000; SPP SEP-2023=500,000; DAFTAR ULANG JUN-2024=2,315,000; PESAT FESTIVAL OKT-2024=100,000
     If (!$studentClass) {error_function('Student Class cannot NULL!',$waError);}
     If (!$billList)     {error_function('Bill List cannot NULL!',$waError);}
 }
@@ -189,7 +141,7 @@ if ($category === 'absence') {
     $postPayload = [
         "to_name" => $studentName,
         "to_number" => $phone, // "62812xxx" -> Must use international number 62,63,65, etc
-        "message_template_id" => "d7efdea9-a2bd-4cc6-b8eb-9991dd5cad27",
+        "message_template_id" => "1a386ce8-7583-485d-b737-7a0be154aa86",
         "channel_integration_id" => "b9ac65e9-02cb-4ae8-bbbf-392d2801267f",
         "language" => ["code" => "id"],
         "parameters" => [
@@ -207,7 +159,7 @@ if ($category === 'payment') {
     $postPayload = [
         "to_name" => $studentName,
         "to_number" => $phone, // "62812xxx" -> Must use international number 62,63,65, etc
-        "message_template_id" => "e0b54d80-a4e9-4ab8-9aa2-b37182c2fd6b",
+        "message_template_id" => "e1f675b5-63ed-4b41-a5d4-9b781289b183",
         "channel_integration_id" => "b9ac65e9-02cb-4ae8-bbbf-392d2801267f",
         "language" => ["code" => "id"],
         "parameters" => [
@@ -225,7 +177,7 @@ if ($category === 'bill') {
     $postPayload = [
         "to_name" => $studentName,
         "to_number" => $phone, // Replace with the recipient's actual phone number
-        "message_template_id" => "7fa4abdb-0865-4ffc-a225-c52c55bf1374",
+        "message_template_id" => "b09e7185-1093-41e0-a3e6-872aac0dc4d6",
         "channel_integration_id" => "b9ac65e9-02cb-4ae8-bbbf-392d2801267f",
         "language" => ["code" => "id"],
         "parameters" => [
@@ -253,26 +205,6 @@ sleep(10);
 
 $logPath = "/qontak/chat/v1/broadcasts/{$broadcastId}/whatsapp/log";
 $logResult = mekari_request('GET', $logPath,$waError);
-
-// $resJson = [
-//     'status' => 'success',
-//     'msg' => 'Success to send broadcast!',
-//     'time' => Carbon::now(),
-//     'detail' => [
-//         'category'      => $category,
-//         'phone'         => $phone,
-//         'parentName'    => $parentName,
-//         'studentName'   => $studentName,
-//         'absenceDate'   => $absenceDate,
-//         'absenceStatus' => $absenceStatus,
-//         'absenceRemark' => $absenceRemark,
-//         'studentClass'  => $studentClass,
-//         'paymentInfo'   => $paymentInfo,
-//         'paymentDate'   => $paymentDate,
-//         'studentClass'  => $studentClass,
-//         'billList'      => $billList,
-//     ],
-// ];
 
 $resJson = [
     'status' => 'success',
