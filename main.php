@@ -96,7 +96,7 @@ $schoolYear  = 'Tahun Ajaran 2026/2027';
 if (isset($_POST['category']))     { $category    = $_POST['category']; }     // Example : absence
 if (isset($_POST['phone']))        { $phone       = $_POST['phone']; }        // Example : 6281284420481
 if (isset($_POST['student_name'])) { $studentName = $_POST['student_name']; } // Example : FERNANDES SIREGAR
-If (!in_array($category,['absence','payment','bill'])) {error_function('Category cannot NULL!',$waError);}
+If (!in_array($category,['absence','payment','bill','ppdb_regist','ppdb_accepted','ppdb_pay'])) {error_function('Category cannot NULL!',$waError);}
 If (!$phone)       {error_function('Phone cannot NULL!',$waError);}
 If (!$studentName) {error_function('Student Name cannot NULL!',$waError);}
 
